@@ -1,7 +1,7 @@
 package com.demo.onlineLibraryAnaMariaDoroftei.controllers;
 
-import com.demo.onlineLibraryAnaMariaDoroftei.entities.User;
-import com.demo.onlineLibraryAnaMariaDoroftei.repositories.UserRepository;
+import com.demo.onlineLibraryAnaMariaDoroftei.entities.Book;
+import com.demo.onlineLibraryAnaMariaDoroftei.repositories.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -19,33 +19,32 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @SpringBootTest
 @Transactional
-class UserControllerIT {
+class BookControllerIT {
 
     @Autowired
-    private UserRepository userRepository;
+    private BookRepository bookRepository;
 
     @Autowired
-    private UserController userController;
+    private BookController bookController;
     private MockMvc mockMvc;
 
     @BeforeEach
     public void setUp(){
-        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(bookController).build();
     }
 
     @Nested
-    @DisplayName("saveUser()")
-    class SaveUser{
+    @DisplayName("saveBook()")
+    class SaveBook{
         @Test
-        public void shouldReturnSavedUser() throws Exception {
-            User user = new User();
+        public void shouldReturnSavedBook() throws Exception {
+            Book book = new Book();
 
-            mockMvc.perform(post("/users")
+            mockMvc.perform(post("/books")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(toJson(user))
+                    .content(toJson(book))
                     .accept(MediaType.APPLICATION_JSON)
             ) .andExpectAll(
                     status().isOk(),
@@ -55,39 +54,39 @@ class UserControllerIT {
         }
 
         @Test
-        public void shouldUpdateExistingUser() throws Exception{
-            User existingUser = new User();
-            existingUser.setEmail("abc@c.com");
-            existingUser = userRepository.save(existingUser);
-            Long id = existingUser.getId();
+        public void shouldUpdateExistingBook() throws Exception{
+            Book existingBook = new Book();
+            existingBook.setLanguage("Romanian");
+            existingBook = bookRepository.save(existingBook);
+            Long id = existingBook.getId();
 
-            existingUser.setEmail("cde@c.com");
+            existingBook.setLanguage("English");
 
 
-            mockMvc.perform(post("/users")
+            mockMvc.perform(post("/books")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(toJson(existingUser))
+                    .content(toJson(existingBook))
                     .accept(MediaType.APPLICATION_JSON)
             ) .andExpectAll(
                     status().isOk(),
                     content().contentType("application/json"),
                     jsonPath("$.id", equalTo(id), Long.class),
-                    jsonPath("$.email", equalTo(existingUser.getEmail()))
+                    jsonPath("$.language", equalTo(existingBook.getLanguage()))
             ) .andDo(print());
         }
     }
 
     @Nested
-    @DisplayName("deleteUser()")
-    class DeleteUser{
+    @DisplayName("deleteBook()")
+    class DeleteBook{
 
         @Test
-        public void shouldDeleteExistingUser() throws Exception {
-            User existingUser = new User();
-            existingUser = userRepository.save(existingUser);
-            Long id = existingUser.getId();
+        public void shouldDeleteExistingBook() throws Exception {
+            Book existingBook = new Book();
+            existingBook = bookRepository.save(existingBook);
+            Long id = existingBook.getId();
 
-            mockMvc.perform(delete("/users/" + id))
+            mockMvc.perform(delete("/books/" + id))
                     .andExpectAll(
                             status().isOk()
                     );
@@ -95,9 +94,9 @@ class UserControllerIT {
 
         @Test
         public void shouldReturnNotFound() throws Exception{
-            Long id = 1234567897543L;
+            Long id = 123123123123123L;
 
-            mockMvc.perform(delete("/users/" + id))
+            mockMvc.perform(delete("/books/" + id))
                     .andExpectAll(
                             status().isNotFound()
                     );
@@ -105,16 +104,16 @@ class UserControllerIT {
     }
 
     @Nested
-    @DisplayName("getUser")
-    class GetUser{
+    @DisplayName("getBook")
+    class GetBook{
 
         @Test
-        public void shouldReturnUser() throws Exception{
-            User existingUser = new User();
-            existingUser = userRepository.save(existingUser);
-            Long id = existingUser.getId();
+        public void shouldReturnBook() throws Exception{
+            Book existingBook = new Book();
+            existingBook = bookRepository.save(existingBook);
+            Long id = existingBook.getId();
 
-            mockMvc.perform(get("/users/" + id)
+            mockMvc.perform(get("/books/" + id)
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)
             ) .andExpectAll(
@@ -126,9 +125,9 @@ class UserControllerIT {
 
         @Test
         public void shouldReturnNotFound() throws Exception{
-            Long id = 1234567897543L;
+            Long id = 123123123123L;
 
-            mockMvc.perform(delete("/users/" + id))
+            mockMvc.perform(delete("/books/" + id))
                     .andExpectAll(
                             status().isNotFound()
                     );
@@ -136,39 +135,26 @@ class UserControllerIT {
     }
 
     @Nested
-    @DisplayName("getUsers")
-    class GetUsers{
+    @DisplayName("getBooks")
+    class GetBooks{
 
         @Test
-        public void shouldReturnUsers() throws Exception{
-            userRepository.save(new User());
-            userRepository.save(new User());
-            userRepository.save(new User());
+        public void shouldReturnBooks() throws Exception{
+            bookRepository.save(new Book());
+            bookRepository.save(new Book());
+            bookRepository.save(new Book());
+            bookRepository.save(new Book());
+            bookRepository.save(new Book());
 
-
-            mockMvc.perform(get("/users")
+            mockMvc.perform(get("/books")
                     .accept(MediaType.APPLICATION_JSON)
             ) .andExpectAll(
                     status().isOk(),
                     content().contentType("application/json"),
-                    jsonPath("$", hasSize(greaterThanOrEqualTo(3)) )
+                    jsonPath("$", hasSize(greaterThanOrEqualTo(5)) )
             ) .andDo(print());
         }
     }
 
-    @Nested
-    @DisplayName("getReadBooksByUserId")
-    class GetBooksByUserId{
 
-        @Test
-        public void shouldReturn404WithNotFindUserId() throws Exception{
-            Long id = 1234567897543L;
-
-
-            mockMvc.perform(get(id + "/readBooks")
-            ) .andExpectAll(
-                    status().isNotFound()
-            ) .andDo(print());
-        }
-    }
 }

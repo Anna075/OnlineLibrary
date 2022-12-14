@@ -1,12 +1,15 @@
 package com.demo.onlineLibraryAnaMariaDoroftei.entities;
 
 import com.demo.onlineLibraryAnaMariaDoroftei.enums.Roles;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static javax.persistence.EnumType.STRING;
 
@@ -24,15 +27,20 @@ public class User {
     private String firstname;
     private String surname;
     private String phoneNumber;
-    private String password;
-    private String joinDate;
+    private String password = "";
+    private Date joinDate;
+    @ElementCollection
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(STRING)
-    private Roles roles;
+    private Collection<Roles> roles;
 
     @OneToMany(mappedBy="user",
             cascade= {CascadeType.ALL},
             fetch=FetchType.EAGER)
     private Set<ReadBook> readBooks;
+
+    public User(String email, String password, Roles roles) {
+    }
 
     @Override
     public boolean equals(Object o) {

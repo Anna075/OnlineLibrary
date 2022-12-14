@@ -16,7 +16,7 @@ import java.util.Objects;
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
     @Column(unique = true)
     private String isbn;
     private String title;

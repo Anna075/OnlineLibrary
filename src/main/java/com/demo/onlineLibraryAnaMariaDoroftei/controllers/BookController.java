@@ -1,16 +1,20 @@
 package com.demo.onlineLibraryAnaMariaDoroftei.controllers;
 
+import com.demo.onlineLibraryAnaMariaDoroftei.entities.Book;
+import com.demo.onlineLibraryAnaMariaDoroftei.exceptions.InvalidBookIdException;
 import com.demo.onlineLibraryAnaMariaDoroftei.services.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.List;
 
 @RestController
-@RequestMapping("/book")
+@RequestMapping("/books")
 @RequiredArgsConstructor
 public class BookController {
 
@@ -18,10 +22,31 @@ public class BookController {
     private final BookService bookService;
 
     @PostMapping
-    public void addBook(@RequestBody Model model){
-
+    public Book saveBook(@RequestBody Book book){
+        return bookService.saveBook(book);
     }
 
+    @GetMapping()
+    public List<Book> getBooks(){
+        return bookService.getBooks();
+    }
+
+    @GetMapping("/{bookId}")
+    public Book getBook(@PathVariable Long bookId) throws InvalidBookIdException {
+        return bookService.getBook(bookId);
+    }
+
+    @DeleteMapping("/{bookId}")
+    public void deleteBook(@PathVariable Long bookId) {
+        bookService.deleteBook(bookId);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> handle(InvalidBookIdException e){
+        HttpHeaders headers = new HttpHeaders();
+        headers.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList("application/json"));
+        return new ResponseEntity<>("BOOK NOT FOUND", headers, HttpStatus.NOT_FOUND);
+    }
 
 
 }

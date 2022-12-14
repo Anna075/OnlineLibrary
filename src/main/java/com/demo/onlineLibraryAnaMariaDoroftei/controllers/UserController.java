@@ -1,5 +1,6 @@
 package com.demo.onlineLibraryAnaMariaDoroftei.controllers;
 
+import com.demo.onlineLibraryAnaMariaDoroftei.entities.ReadBook;
 import com.demo.onlineLibraryAnaMariaDoroftei.entities.User;
 import com.demo.onlineLibraryAnaMariaDoroftei.exceptions.InvalidUserIdException;
 import com.demo.onlineLibraryAnaMariaDoroftei.services.UserService;
@@ -11,17 +12,28 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
-@SuppressWarnings("unused")
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
+//    @PostMapping("/")
+//    public User saveUser(@RequestBody User user){
+//        return userService.saveUser(user);
+//    }
+
     @PostMapping()
-    public User saveUser(@RequestBody User user){
-        return userService.saveUser(user);
+    public void addUser(@RequestBody User user){
+        userService.addUser(user);
+    }
+
+    @PutMapping ("/{userId}")
+    public void updateUser(@PathVariable Long userId) throws InvalidUserIdException {
+        userService.updateUser(userId);
     }
 
     @GetMapping()
@@ -30,13 +42,18 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public User getUser(@PathVariable Long userId) throws InvalidUserIdException {
+    public User getUser(@PathVariable Long userId) {
         return userService.getUser(userId);
     }
 
     @DeleteMapping("/{userId}")
-    public void deleteUser(@PathVariable Long userId) {
+    public void deleteUser(@PathVariable Long userId) throws InvalidUserIdException{
         userService.deleteUser(userId);
+    }
+
+    @GetMapping("/{userId}/readBooks")
+    public Set<ReadBook> getReadBooksByUserId(@PathVariable Long userId){
+        return userService.getReadBooksByUserId(userId);
     }
 
     @ExceptionHandler
