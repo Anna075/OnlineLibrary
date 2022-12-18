@@ -38,9 +38,4 @@ public class Book {
         Book book = (Book) o;
         return id != 0 && Objects.equals(id, book.id);
     }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }

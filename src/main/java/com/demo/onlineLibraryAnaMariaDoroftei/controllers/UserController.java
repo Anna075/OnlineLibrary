@@ -21,19 +21,18 @@ import java.util.Set;
 public class UserController {
     private final UserService userService;
 
-//    @PostMapping("/")
-//    public User saveUser(@RequestBody User user){
-//        return userService.saveUser(user);
-//    }
-
     @PostMapping()
-    public void addUser(@RequestBody User user){
-        userService.addUser(user);
+    public User saveUser(@RequestBody User user){
+        return userService.saveUser(user);
     }
 
-    @PutMapping ("/{userId}")
-    public void updateUser(@PathVariable Long userId) throws InvalidUserIdException {
-        userService.updateUser(userId);
+    @PutMapping()
+    public User updateUser(@RequestBody User user){
+        if(user.getId() != null){
+            return saveUser(user);
+        } else {
+            throw new InvalidUserIdException();
+        }
     }
 
     @GetMapping()
@@ -52,7 +51,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}/readBooks")
-    public Set<ReadBook> getReadBooksByUserId(@PathVariable Long userId){
+    public List<ReadBook> getReadBooksByUserId(@PathVariable Long userId){
         return userService.getReadBooksByUserId(userId);
     }
 

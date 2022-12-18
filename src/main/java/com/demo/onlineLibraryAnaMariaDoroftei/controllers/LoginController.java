@@ -1,7 +1,7 @@
 package com.demo.onlineLibraryAnaMariaDoroftei.controllers;
 
 import com.demo.onlineLibraryAnaMariaDoroftei.security.SecurityService;
-import com.demo.onlineLibraryAnaMariaDoroftei.security.UserPrincipalDetailsService;
+import com.demo.onlineLibraryAnaMariaDoroftei.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -15,12 +15,12 @@ import java.util.Map;
 @AllArgsConstructor
 public class LoginController {
     private final SecurityService securityService;
-    private final UserPrincipalDetailsService userPrincipalDetailsService;
+    private final UserService userService;
 
     @PostMapping("/login")
     public Map<String, Object> handleLoginSuccess(@RequestParam String email, @RequestParam String password){
         String authToken = securityService.createAuthToken(email, password);
-        UserDetails authenticatedUser = userPrincipalDetailsService.loadUserByUsername(email);
+        UserDetails authenticatedUser = userService.loadUserByUsername(email);
 
         Map<String, Object> responseParams = new HashMap<>();
         responseParams.put("authToken", authToken);

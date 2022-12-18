@@ -1,6 +1,8 @@
 package com.demo.onlineLibraryAnaMariaDoroftei.controllers;
 
+import com.demo.onlineLibraryAnaMariaDoroftei.entities.ReadBook;
 import com.demo.onlineLibraryAnaMariaDoroftei.entities.User;
+import com.demo.onlineLibraryAnaMariaDoroftei.repositories.ReadBookRepository;
 import com.demo.onlineLibraryAnaMariaDoroftei.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -29,6 +31,9 @@ class UserControllerIT {
 
     @Autowired
     private UserController userController;
+
+    @Autowired
+    private ReadBookRepository readBookRepository;
     private MockMvc mockMvc;
 
     @BeforeEach
@@ -105,7 +110,7 @@ class UserControllerIT {
     }
 
     @Nested
-    @DisplayName("getUser")
+    @DisplayName("getUser()")
     class GetUser{
 
         @Test
@@ -157,17 +162,117 @@ class UserControllerIT {
     }
 
     @Nested
-    @DisplayName("getReadBooksByUserId")
+    @DisplayName("getReadBooksByUserId()")
     class GetBooksByUserId{
 
         @Test
-        public void shouldReturn404WithNotFindUserId() throws Exception{
+        public void shouldReturn404WhenNotFindUserId() throws Exception{
             Long id = 1234567897543L;
 
 
-            mockMvc.perform(get(id + "/readBooks")
+            mockMvc.perform(get("/users/" + id + "/readBooks")
+                    .accept(MediaType.APPLICATION_JSON)
             ) .andExpectAll(
-                    status().isNotFound()
+                    status().isNotFound(),
+                    content().contentType("application/json")
+            ) .andDo(print());
+        }
+
+        @Test
+        public void shouldReturnEmptyReadBooksListWhenUserExists() throws Exception {
+            User existingUser = new User();
+            existingUser = userRepository.save(existingUser);
+            Long id = existingUser.getId();
+
+
+            mockMvc.perform(get("/users/" + id + "/readBooks")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(toJson(existingUser))
+            ) .andExpectAll(
+                    status().isOk(),
+                    content().contentType("application/json"),
+                    jsonPath("$", hasSize(equalTo(0)) )
+            ) .andDo(print());
+        }
+
+        @Test
+        public void shouldReturnAllReadBooksListWhenUserExists() throws Exception{
+            User existingUser = new User();
+
+            ReadBook bookOne = new ReadBook();
+            ReadBook bookTwo = new ReadBook();
+            existingUser.addReadBook(bookOne);
+            existingUser.addReadBook(bookTwo);
+
+            existingUser = userRepository.save(existingUser);
+            Long id = existingUser.getId();
+
+
+            mockMvc.perform(get("/users/" + id + "/readBooks")
+                    .accept(MediaType.APPLICATION_JSON)
+            ) .andExpectAll(
+                    status().isOk(),
+                    content().contentType("application/json"),
+                    jsonPath("$", hasSize(equalTo(2))),
+                    jsonPath("$[0].id", equalTo(bookOne.getId()), Long.class),
+                    jsonPath("$[1].id", equalTo(bookTwo.getId()), Long.class)
+            ) .andDo(print());
+        }
+
+        @Test
+        public void shouldReturnReadBooksListWithUnreadBooks() throws Exception{
+            User existingUser = new User();
+
+            ReadBook bookOne = new ReadBook();
+            ReadBook bookTwo = new ReadBook();
+            ReadBook bookThree = new ReadBook();
+            ReadBook bookFour = new ReadBook();
+
+            existingUser.addReadBook(bookOne);
+            existingUser.addReadBook(bookTwo);
+            existingUser.addReadBook(bookThree);
+
+            existingUser = userRepository.save(existingUser);
+            Long id = existingUser.getId();
+
+            readBookRepository.save(bookFour);
+
+
+            mockMvc.perform(get("/users/" + id + "/readBooks")
+                    .accept(MediaType.APPLICATION_JSON)
+            ) .andExpectAll(
+                    status().isOk(),
+                    content().contentType("application/json"),
+                    jsonPath("$", hasSize(equalTo(3))),
+                    jsonPath("$[0].id", equalTo(bookOne.getId()), Long.class),
+                    jsonPath("$[1].id", equalTo(bookTwo.getId()), Long.class),
+                    jsonPath("$[2].id", equalTo(bookThree.getId()), Long.class)
+            ) .andDo(print());
+        }
+
+        @Test
+        public void shouldNotReturnReadBooksListWithUnreadBooks() throws Exception{
+            User existingUser = new User();
+            existingUser = userRepository.save(existingUser);
+            Long id = existingUser.getId();
+
+            ReadBook bookOne = new ReadBook();
+            ReadBook bookTwo = new ReadBook();
+            ReadBook bookThree = new ReadBook();
+            ReadBook bookFour = new ReadBook();
+
+            readBookRepository.save(bookOne);
+            readBookRepository.save(bookTwo);
+            readBookRepository.save(bookThree);
+            readBookRepository.save(bookFour);
+
+            mockMvc.perform(get("/users/" + id + "/readBooks")
+                    .accept(MediaType.APPLICATION_JSON)
+            ) .andExpectAll(
+                    status().isOk(),
+                    content().contentType("application/json"),
+                    jsonPath("$", hasSize(equalTo(0)))
             ) .andDo(print());
         }
     }

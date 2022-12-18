@@ -30,8 +30,4 @@ public class ReadBook {
         return Objects.equals(id, that.id);
     }
 
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }

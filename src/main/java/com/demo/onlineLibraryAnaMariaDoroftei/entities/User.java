@@ -18,7 +18,7 @@ import static javax.persistence.EnumType.STRING;
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class User {
+public class User implements UserDetails{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,9 +37,10 @@ public class User {
     @OneToMany(mappedBy="user",
             cascade= {CascadeType.ALL},
             fetch=FetchType.EAGER)
-    private Set<ReadBook> readBooks;
+    private List<ReadBook> readBooks = new ArrayList<>();
 
-    public User(String email, String password, Roles roles) {
+    public void addReadBook(ReadBook readBook) {
+        readBooks.add(readBook);
     }
 
     @Override
@@ -50,8 +51,46 @@ public class User {
         return id != null && Objects.equals(id, user.id);
     }
 
+    @JsonIgnore
     @Override
-    public int hashCode() {
-        return getClass().hashCode();
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+       getRoles().forEach(r -> {
+            GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + r);
+            authorities.add(authority);
+        });
+
+        return authorities;
+    }
+
+    @JsonIgnore
+    @Override
+    public String getUsername() {
+        return getEmail();
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
