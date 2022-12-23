@@ -24,6 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @Transactional
+@SuppressWarnings("unused")
 class UserControllerIT {
 
     @Autowired
@@ -64,7 +65,7 @@ class UserControllerIT {
             User existingUser = new User();
             existingUser.setEmail("abc@c.com");
             existingUser = userRepository.save(existingUser);
-            Long id = existingUser.getId();
+            long id = existingUser.getId();
 
             existingUser.setEmail("cde@c.com");
 
@@ -90,7 +91,7 @@ class UserControllerIT {
         public void shouldDeleteExistingUser() throws Exception {
             User existingUser = new User();
             existingUser = userRepository.save(existingUser);
-            Long id = existingUser.getId();
+            long id = existingUser.getId();
 
             mockMvc.perform(delete("/users/" + id))
                     .andExpectAll(
@@ -100,7 +101,7 @@ class UserControllerIT {
 
         @Test
         public void shouldReturnNotFound() throws Exception{
-            Long id = 1234567897543L;
+            long id = 1234567897543L;
 
             mockMvc.perform(delete("/users/" + id))
                     .andExpectAll(
@@ -117,7 +118,7 @@ class UserControllerIT {
         public void shouldReturnUser() throws Exception{
             User existingUser = new User();
             existingUser = userRepository.save(existingUser);
-            Long id = existingUser.getId();
+            long id = existingUser.getId();
 
             mockMvc.perform(get("/users/" + id)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -131,7 +132,7 @@ class UserControllerIT {
 
         @Test
         public void shouldReturnNotFound() throws Exception{
-            Long id = 1234567897543L;
+            long id = 1234567897543L;
 
             mockMvc.perform(delete("/users/" + id))
                     .andExpectAll(
@@ -167,7 +168,7 @@ class UserControllerIT {
 
         @Test
         public void shouldReturn404WhenNotFindUserId() throws Exception{
-            Long id = 1234567897543L;
+            long id = 1234567897543L;
 
 
             mockMvc.perform(get("/users/" + id + "/readBooks")

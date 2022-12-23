@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @Transactional
+@SuppressWarnings("unused")
 class BookCategoryControllerIT {
 
     @Autowired
@@ -84,10 +85,11 @@ class BookCategoryControllerIT {
         @Test
         public void shouldDeleteExistingBookCategory() throws Exception {
             BookCategory existingBookCategory = new BookCategory();
+            existingBookCategory.setName("it");
             existingBookCategory = bookCategoryRepository.save(existingBookCategory);
-            Long id = existingBookCategory.getId();
+            String categoryName = existingBookCategory.getName();
 
-            mockMvc.perform(delete("/bookCategories/" + id))
+            mockMvc.perform(delete("/bookCategories/" + categoryName))
                     .andExpectAll(
                             status().isOk()
                     );
@@ -95,9 +97,9 @@ class BookCategoryControllerIT {
 
         @Test
         public void shouldReturnNotFound() throws Exception{
-            Long id = 1234567897543L;
+            String categoryName = "it";
 
-            mockMvc.perform(delete("/bookCategories/" + id))
+            mockMvc.perform(delete("/bookCategories/" + categoryName))
                     .andExpectAll(
                             status().isNotFound()
                     );
@@ -105,28 +107,30 @@ class BookCategoryControllerIT {
     }
 
     @Nested
-    @DisplayName("getBookCategory")
+    @DisplayName("getBookCategory()")
     class GetBookCategory{
 
         @Test
         public void shouldReturnBookCategory() throws Exception{
             BookCategory existingBookCategory = new BookCategory();
+            existingBookCategory.setName("it");
             existingBookCategory = bookCategoryRepository.save(existingBookCategory);
-            Long id = existingBookCategory.getId();
+            String categoryName = existingBookCategory.getName();
 
-            mockMvc.perform(get("/bookCategories/" + id)
+            mockMvc.perform(get("/bookCategories/" + categoryName)
+                    .content(toJson(categoryName))
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)
             ) .andExpectAll(
                     status().isOk(),
                     content().contentType("application/json"),
-                    jsonPath("$.id", equalTo(id), Long.class)
+                    jsonPath("$.name", equalTo(categoryName), String.class)
             ) .andDo(print());
         }
 
         @Test
         public void shouldReturnNotFound() throws Exception{
-            Long id = 1234567897543L;
+            long id = 1234567897543L;
 
             mockMvc.perform(delete("/bookCategory/" + id))
                     .andExpectAll(
@@ -135,7 +139,7 @@ class BookCategoryControllerIT {
         }
     }
     @Nested
-    @DisplayName("getBookCategories")
+    @DisplayName("getBookCategories()")
     class GetBookCategories{
 
         @Test

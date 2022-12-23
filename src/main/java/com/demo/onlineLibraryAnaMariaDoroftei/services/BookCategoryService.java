@@ -1,9 +1,7 @@
 package com.demo.onlineLibraryAnaMariaDoroftei.services;
 
 import com.demo.onlineLibraryAnaMariaDoroftei.entities.BookCategory;
-import com.demo.onlineLibraryAnaMariaDoroftei.entities.User;
-import com.demo.onlineLibraryAnaMariaDoroftei.exceptions.InvalidBookCategoryIdException;
-import com.demo.onlineLibraryAnaMariaDoroftei.exceptions.InvalidUserIdException;
+import com.demo.onlineLibraryAnaMariaDoroftei.exceptions.InvalidBookCategoryNameException;
 import com.demo.onlineLibraryAnaMariaDoroftei.repositories.BookCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,9 +19,9 @@ public class BookCategoryService {
         return bookCategoryRepository.save(category);
     }
 
-    public BookCategory getBookCategory(Long bookCategoryId) {
-        return bookCategoryRepository.findById(bookCategoryId)
-                .orElseThrow(InvalidBookCategoryIdException::new);
+    public BookCategory getBookCategoryByName(String name) {
+        return bookCategoryRepository.findByName(name)
+                .orElseThrow(InvalidBookCategoryNameException::new);
     }
 
     public List<BookCategory> getBookCategories(){
@@ -35,8 +33,8 @@ public class BookCategoryService {
         return bookCategories;
     }
 
-    public void deleteBookCategories(Long bookCategoryId) {
-        BookCategory bookCategoryToDelete = getBookCategory(bookCategoryId);
+    public void deleteBookCategories(String name) {
+        BookCategory bookCategoryToDelete = getBookCategoryByName(name);
         bookCategoryRepository.delete(bookCategoryToDelete);
     }
 

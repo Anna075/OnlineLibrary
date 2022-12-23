@@ -1,5 +1,6 @@
 package com.demo.onlineLibraryAnaMariaDoroftei.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -17,8 +18,11 @@ public class ReadBook {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     @OneToOne
     private Book book;
+
+    @JsonIgnore
     @OneToOne
     private User user;
 
@@ -29,5 +33,4 @@ public class ReadBook {
         ReadBook that = (ReadBook) o;
         return Objects.equals(id, that.id);
     }
-
 }

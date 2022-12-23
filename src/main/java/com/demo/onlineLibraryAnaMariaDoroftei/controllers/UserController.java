@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-
 
 @RestController
 @RequestMapping("/users")
@@ -61,5 +59,6 @@ public class UserController {
         headers.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList("application/json"));
         return new ResponseEntity<>("USER NOT FOUND", headers, HttpStatus.NOT_FOUND);
     }
+
 
 }

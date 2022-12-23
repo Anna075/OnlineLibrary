@@ -1,6 +1,8 @@
 package com.demo.onlineLibraryAnaMariaDoroftei.controllers;
 
 import com.demo.onlineLibraryAnaMariaDoroftei.entities.Book;
+import com.demo.onlineLibraryAnaMariaDoroftei.entities.BookCategory;
+import com.demo.onlineLibraryAnaMariaDoroftei.repositories.BookCategoryRepository;
 import com.demo.onlineLibraryAnaMariaDoroftei.repositories.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,10 +23,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @Transactional
+@SuppressWarnings("unused")
 class BookControllerIT {
-
     @Autowired
     private BookRepository bookRepository;
+
+    @Autowired
+    private BookCategoryRepository bookCategoryRepository;
 
     @Autowired
     private BookController bookController;
@@ -94,7 +99,7 @@ class BookControllerIT {
 
         @Test
         public void shouldReturnNotFound() throws Exception{
-            Long id = 123123123123123L;
+            long id = 123123123123123L;
 
             mockMvc.perform(delete("/books/" + id))
                     .andExpectAll(
@@ -104,7 +109,7 @@ class BookControllerIT {
     }
 
     @Nested
-    @DisplayName("getBook")
+    @DisplayName("getBook()")
     class GetBook{
 
         @Test
@@ -125,9 +130,9 @@ class BookControllerIT {
 
         @Test
         public void shouldReturnNotFound() throws Exception{
-            Long id = 123123123123L;
+            long id = 123123123123L;
 
-            mockMvc.perform(delete("/books/" + id))
+            mockMvc.perform(get("/books/" + id))
                     .andExpectAll(
                             status().isNotFound()
                     );
@@ -135,11 +140,11 @@ class BookControllerIT {
     }
 
     @Nested
-    @DisplayName("getBooks")
+    @DisplayName("getBooks()")
     class GetBooks{
 
         @Test
-        public void shouldReturnBooks() throws Exception{
+        public void shouldReturnAllBooks() throws Exception{
             bookRepository.save(new Book());
             bookRepository.save(new Book());
             bookRepository.save(new Book());
@@ -154,6 +159,123 @@ class BookControllerIT {
                     jsonPath("$", hasSize(greaterThanOrEqualTo(5)) )
             ) .andDo(print());
         }
+
+        @Test
+        public void shouldReturn404WhenBookCategoryNotFound() throws Exception {
+            String categoryName = "Not Existing Category";
+
+            mockMvc.perform(get("/books").queryParam("categoryName", categoryName))
+                    .andExpectAll(status().isNotFound());
+        }
+
+        @Test
+        public void shouldReturnEmptyBooksListWhenBooksNotFound() throws Exception {
+            BookCategory fantasyBookCategory = new BookCategory();
+            fantasyBookCategory.setName("fantasy");
+            fantasyBookCategory = bookCategoryRepository.save(fantasyBookCategory);
+
+            BookCategory itBookCategory = new BookCategory();
+            itBookCategory.setName("it");
+            itBookCategory = bookCategoryRepository.save(itBookCategory);
+
+            Book bookOne = new Book();
+            bookOne.setBookCategory(itBookCategory);
+            bookRepository.save(bookOne);
+
+            Book bookTwo = new Book();
+            bookTwo.setBookCategory(itBookCategory);
+            bookRepository.save(bookTwo);
+
+            String categoryName = fantasyBookCategory.getName();
+
+            mockMvc.perform(get("/books")
+                    .queryParam("categoryName", categoryName)
+                    .accept(MediaType.APPLICATION_JSON)
+            ) .andExpectAll(
+                    status().isOk(),
+                    content().contentType("application/json"),
+                    jsonPath("$", empty())
+            ) .andDo(print());
+        }
+
+        @Test
+        public void shouldReturnBooksWhenBookCategoryExists() throws Exception {
+            BookCategory bookCategory = new BookCategory();
+            bookCategory.setName("it");
+            bookCategory = bookCategoryRepository.save(bookCategory);
+
+            Book bookOne = new Book();
+            bookOne.setBookCategory(bookCategory);
+            bookOne = bookRepository.save(bookOne);
+
+            Book bookTwo = new Book();
+            bookTwo.setBookCategory(bookCategory);
+            bookTwo = bookRepository.save(bookTwo);
+
+            Book bookThree = new Book();
+            bookThree.setBookCategory(bookCategory);
+            bookThree = bookRepository.save(bookThree);
+
+            String categoryName = bookCategory.getName();
+
+            mockMvc.perform(get("/books")
+                    .queryParam("categoryName", categoryName)
+                    .accept(MediaType.APPLICATION_JSON)
+            ) .andExpectAll(
+                    status().isOk(),
+                    content().contentType("application/json"),
+                    jsonPath("$", hasSize(equalTo(3))),
+                    jsonPath("$[0].bookCategory.name", equalTo(bookOne.getBookCategory().getName()), String.class),
+                    jsonPath("$[1].bookCategory.name", equalTo(bookTwo.getBookCategory().getName()), String.class),
+                    jsonPath("$[2].bookCategory.name", equalTo(bookThree.getBookCategory().getName()), String.class)
+            ) .andDo(print());
+        }
+
+        @Test
+        public void shouldReturnKidsBooksWhenMoreBookCategoryExist() throws Exception {
+            BookCategory itBookCategory = new BookCategory();
+            itBookCategory.setName("it");
+            itBookCategory = bookCategoryRepository.save(itBookCategory);
+
+            BookCategory kidsBookCategory = new BookCategory();
+            kidsBookCategory.setName("kids");
+            kidsBookCategory = bookCategoryRepository.save(kidsBookCategory);
+
+            Book bookOne = new Book();
+            bookOne.setBookCategory(itBookCategory);
+            bookRepository.save(bookOne);
+
+            Book bookTwo = new Book();
+            bookTwo.setBookCategory(itBookCategory);
+            bookRepository.save(bookTwo);
+
+            Book bookThree = new Book();
+            bookThree.setBookCategory(kidsBookCategory);
+            bookThree = bookRepository.save(bookThree);
+
+            Book bookFour = new Book();
+            bookFour.setBookCategory(kidsBookCategory);
+            bookFour = bookRepository.save(bookFour);
+
+            Book bookFive = new Book();
+            bookFive.setBookCategory(kidsBookCategory);
+            bookFive = bookRepository.save(bookFive);
+
+            String categoryName = kidsBookCategory.getName();
+
+            mockMvc.perform(get("/books")
+                    .queryParam("categoryName", categoryName)
+                    .accept(MediaType.APPLICATION_JSON)
+            ) .andExpectAll(
+                    status().isOk(),
+                    content().contentType("application/json"),
+                    jsonPath("$", hasSize(equalTo(3))),
+                    jsonPath("$[0].bookCategory.name", equalTo(bookThree.getBookCategory().getName()), String.class),
+                    jsonPath("$[1].bookCategory.name", equalTo(bookFour.getBookCategory().getName()), String.class),
+                    jsonPath("$[2].bookCategory.name", equalTo(bookFive.getBookCategory().getName()), String.class)
+            ) .andDo(print());
+        }
+
     }
 
 

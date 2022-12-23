@@ -4,6 +4,8 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Table(name = "books")
@@ -22,6 +24,7 @@ public class Book {
     private String title;
     private String authors;
     @ManyToOne
+    @JoinColumn(name = "bookCategory")
     private BookCategory bookCategory;
     private String thumbnailURL;
     @Column(length = 1000)

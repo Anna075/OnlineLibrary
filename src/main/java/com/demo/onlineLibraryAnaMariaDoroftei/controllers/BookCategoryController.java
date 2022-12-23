@@ -1,7 +1,7 @@
 package com.demo.onlineLibraryAnaMariaDoroftei.controllers;
 
 import com.demo.onlineLibraryAnaMariaDoroftei.entities.BookCategory;
-import com.demo.onlineLibraryAnaMariaDoroftei.exceptions.InvalidBookCategoryIdException;
+import com.demo.onlineLibraryAnaMariaDoroftei.exceptions.InvalidBookCategoryNameException;
 import com.demo.onlineLibraryAnaMariaDoroftei.services.BookCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -29,18 +29,18 @@ public class BookCategoryController {
         return bookCategoryService.getBookCategories();
     }
 
-    @GetMapping("/{bookCategoryId}")
-    public BookCategory getBookCategory(@PathVariable Long bookCategoryId) {
-        return bookCategoryService.getBookCategory(bookCategoryId);
+    @GetMapping("/{name}")
+    public BookCategory getBookCategory(@PathVariable String name) {
+        return bookCategoryService.getBookCategoryByName(name);
     }
 
-    @DeleteMapping("/{bookCategoryId}")
-    public void deleteBookCategory(@PathVariable Long bookCategoryId) {
-        bookCategoryService.deleteBookCategories(bookCategoryId);
+    @DeleteMapping("/{name}")
+    public void deleteBookCategory(@PathVariable String name) {
+        bookCategoryService.deleteBookCategories(name);
     }
 
     @ExceptionHandler
-    public ResponseEntity<String> handle(InvalidBookCategoryIdException e){
+    public ResponseEntity<String> handle(InvalidBookCategoryNameException e){
         HttpHeaders headers = new HttpHeaders();
         headers.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList("application/json"));
         return new ResponseEntity<>("BOOK CATEGORY NOT FOUND", headers, HttpStatus.NOT_FOUND);

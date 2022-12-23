@@ -1,12 +1,8 @@
 package com.demo.onlineLibraryAnaMariaDoroftei.entities;
 
 import com.demo.onlineLibraryAnaMariaDoroftei.enums.Roles;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.Hibernate;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.*;
@@ -18,7 +14,7 @@ import static javax.persistence.EnumType.STRING;
 @Setter
 @ToString
 @RequiredArgsConstructor
-public class User implements UserDetails{
+public class User{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,48 +45,5 @@ public class User implements UserDetails{
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         User user = (User) o;
         return id != null && Objects.equals(id, user.id);
-    }
-
-    @JsonIgnore
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-
-       getRoles().forEach(r -> {
-            GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + r);
-            authorities.add(authority);
-        });
-
-        return authorities;
-    }
-
-    @JsonIgnore
-    @Override
-    public String getUsername() {
-        return getEmail();
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @JsonIgnore
-    @Override
-    public boolean isEnabled() {
-        return true;
     }
 }

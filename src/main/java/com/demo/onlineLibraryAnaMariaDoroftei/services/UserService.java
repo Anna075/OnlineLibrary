@@ -1,32 +1,25 @@
 package com.demo.onlineLibraryAnaMariaDoroftei.services;
 
+import com.demo.onlineLibraryAnaMariaDoroftei.entities.Book;
+import com.demo.onlineLibraryAnaMariaDoroftei.entities.BookCategory;
 import com.demo.onlineLibraryAnaMariaDoroftei.entities.ReadBook;
 import com.demo.onlineLibraryAnaMariaDoroftei.entities.User;
 import com.demo.onlineLibraryAnaMariaDoroftei.exceptions.InvalidUserIdException;
+import com.demo.onlineLibraryAnaMariaDoroftei.repositories.ReadBookRepository;
 import com.demo.onlineLibraryAnaMariaDoroftei.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserDetailsService {
+public class UserService{
 
     private final UserRepository userRepository;
-
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final ReadBookRepository readBookRepository;
 
     public User saveUser(User user){
-        if(user.getId() == null){
-            String pass = user.getPassword();
-            user.setPassword(passwordEncoder.encode(pass));
-        }
         return userRepository.save(user);
     }
 
@@ -51,10 +44,5 @@ public class UserService implements UserDetailsService {
 
     public List<ReadBook> getReadBooksByUserId(Long userId) {
         return getUser(userId).getReadBooks();
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return this.userRepository.findByEmail(email);
     }
 }

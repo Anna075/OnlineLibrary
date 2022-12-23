@@ -23,6 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @Transactional
+@SuppressWarnings("unused")
 class ReadBookControllerIT {
 
     @Autowired
@@ -92,7 +93,7 @@ class ReadBookControllerIT {
 
         @Test
         public void shouldReturnNotFound() throws Exception {
-            Long id = 1234567897543L;
+            long id = 1234567897543L;
 
             mockMvc.perform(delete("/readBooks/" + id))
                     .andExpectAll(
@@ -123,7 +124,7 @@ class ReadBookControllerIT {
 
         @Test
         public void shouldReturnNotFound() throws Exception {
-            Long id = 1234567897543L;
+            long id = 1234567897543L;
 
             mockMvc.perform(delete("/readBooks/" + id))
                     .andExpectAll(

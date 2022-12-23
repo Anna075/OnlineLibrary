@@ -1,6 +1,7 @@
 package com.demo.onlineLibraryAnaMariaDoroftei.controllers;
 
 import com.demo.onlineLibraryAnaMariaDoroftei.entities.Book;
+import com.demo.onlineLibraryAnaMariaDoroftei.exceptions.InvalidBookCategoryNameException;
 import com.demo.onlineLibraryAnaMariaDoroftei.exceptions.InvalidBookIdException;
 import com.demo.onlineLibraryAnaMariaDoroftei.services.BookService;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +28,8 @@ public class BookController {
     }
 
     @GetMapping()
-    public List<Book> getBooks(){
-        return bookService.getBooks();
+    public List<Book> getBooks(@RequestParam(required = false) String categoryName){
+        return bookService.getBooks(categoryName);
     }
 
     @GetMapping("/{bookId}")
@@ -48,5 +49,10 @@ public class BookController {
         return new ResponseEntity<>("BOOK NOT FOUND", headers, HttpStatus.NOT_FOUND);
     }
 
-
+    @ExceptionHandler
+    public ResponseEntity<String> handle(InvalidBookCategoryNameException e){
+        HttpHeaders headers = new HttpHeaders();
+        headers.put(HttpHeaders.CONTENT_TYPE, Collections.singletonList("application/json"));
+        return new ResponseEntity<>("BOOK CATEGORY NOT FOUND", headers, HttpStatus.NOT_FOUND);
+    }
 }
